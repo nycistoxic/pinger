@@ -4,16 +4,18 @@ import ru.nycistoxic.pinger.Pinger;
 import ru.nycistoxic.pinger.object.Server;
 import ru.nycistoxic.pinger.task.ServerPingTask;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class ServerRegistry {
 
-    private final Pinger instance = Pinger.getInstance();
-    private final Set<Server> servers = new HashSet<>();
+    private final Pinger instance;
+    private final Set<Server> servers;
 
-    public ServerRegistry() {
+    public ServerRegistry(Pinger instance, Set<Server> servers) {
+        this.instance = instance;
+        this.servers = servers;
+
         init();
     }
 
@@ -25,7 +27,7 @@ public class ServerRegistry {
         // --------------
 
         for (Server server : servers)
-            instance.getExecutor().scheduleWithFixedDelay(new ServerPingTask(server), 0, 10000, TimeUnit.MILLISECONDS);
+            instance.getExecutor().scheduleWithFixedDelay(new ServerPingTask(instance, server), 0, 10000, TimeUnit.MILLISECONDS);
     }
 
 }

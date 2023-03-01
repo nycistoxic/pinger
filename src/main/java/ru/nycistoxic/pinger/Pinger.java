@@ -9,6 +9,7 @@ import ru.nycistoxic.pinger.registry.ServerRegistry;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.ConsoleHandler;
@@ -19,8 +20,6 @@ import java.util.logging.Logger;
 @Getter
 public class Pinger {
 
-    @Getter
-    private static Pinger instance;
     private final Gson gson;
     private final ScheduledExecutorService executor;
     private final ServerRegistry serverRegistry;
@@ -33,10 +32,9 @@ public class Pinger {
     }
 
     public Pinger() {
-        instance = this;
         gson = new Gson();
         executor = Executors.newScheduledThreadPool(3);
-        serverRegistry = new ServerRegistry();
+        serverRegistry = new ServerRegistry(this, new HashSet<>());
 
         Runtime.getRuntime().addShutdownHook(new Thread(executor::shutdown));
     }

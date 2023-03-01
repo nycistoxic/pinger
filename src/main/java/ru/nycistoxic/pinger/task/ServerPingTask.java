@@ -17,7 +17,7 @@ import java.net.Socket;
 @RequiredArgsConstructor
 public class ServerPingTask implements Runnable {
 
-    private final Pinger instance = Pinger.getInstance();
+    private final Pinger instance;
     private final Server server;
 
     @Override
@@ -26,7 +26,7 @@ public class ServerPingTask implements Runnable {
             PingResponse response = get();
 
             if (response != null)
-                instance.getLogger().info("Server " + server.getName() + " updated " + response.players().getOnline() + "/" + response.players().getMax());
+                instance.getLogger().info("Server " + server.name() + " updated " + response.players().online() + "/" + response.players().max());
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -36,7 +36,7 @@ public class ServerPingTask implements Runnable {
     private PingResponse get() {
         try (Socket socket = new Socket()) {
             socket.setSoTimeout(2000);
-            socket.connect(new InetSocketAddress(server.getIp(), server.getPort()), 2000);
+            socket.connect(new InetSocketAddress(server.ip(), server.port()), 2000);
 
             DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -45,10 +45,10 @@ public class ServerPingTask implements Runnable {
             handshake.writeByte(0x00);
 
             BufferUtil.writeInteger(handshake, 5);
-            BufferUtil.writeInteger(handshake, server.getIp().length());
+            BufferUtil.writeInteger(handshake, server.ip().length());
 
-            handshake.writeBytes(server.getIp());
-            handshake.writeShort(server.getPort());
+            handshake.writeBytes(server.ip());
+            handshake.writeShort(server.port());
 
             BufferUtil.writeInteger(handshake, 1);
             BufferUtil.writeInteger(dataOutputStream, byteArrayOutputStream.size());
@@ -79,7 +79,7 @@ public class ServerPingTask implements Runnable {
 
             return instance.getGson().fromJson(new String(in), PingResponse.class);
         } catch (IOException ex) {
-            instance.getLogger().info("Server " + server.getName() + " is offline");
+            instance.getLogger().info("Server " + server.name() + " is offline");
             return null;
         }
     }
